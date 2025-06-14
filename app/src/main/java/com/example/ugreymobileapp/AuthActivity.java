@@ -38,17 +38,14 @@ public class AuthActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize Firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("users");
 
-        // Initialize views
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         registerButton = findViewById(R.id.registerButton);
 
-        // Set click listeners
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> {
             Intent intent = new Intent(AuthActivity.this, RegisterActivity.class);

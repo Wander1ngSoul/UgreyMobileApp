@@ -7,4 +7,17 @@
     <string name="register_button">Зарегистрироваться</string>
     <string name="fill_all_fields">Пожалуйста, заполните все поля</string>
     <string name="invalid_credentials">Неверный email или пароль</string>
+
+    <string name="register_title">Регистрация</string>
+    <string name="hint_last_name">Фамилия</string>
+    <string name="hint_first_name">Имя</string>
+    <string name="hint_middle_name">Отчество (если есть)</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Пароль</string>
+    <string name="hint_confirm_password">Подтвердите пароль</string>
+    <string name="btn_register">Зарегистрироваться</string>
+    <string name="have_account">Уже есть аккаунт? Войти</string>
+    <string name="registration_success">Регистрация успешна!</string>
+    <string name="registration_error">Ошибка регистрации</string>
+    <string name="database_error">Ошибка базы данных</string>
 </resources>
