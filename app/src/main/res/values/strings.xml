@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">UgreyMobileApp</string>
+    <string name="login_title">Вход в систему</string>
+    <string name="email_hint">Электронная почта</string>
+    <string name="password_hint">Пароль</string>
+    <string name="login_button">Войти</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="fill_all_fields">Пожалуйста, заполните все поля</string>
+    <string name="invalid_credentials">Неверный email или пароль</string>
+</resources>
