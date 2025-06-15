@@ -8,7 +8,6 @@ public class User {
     private String passwordHash;
 
     public User() {
-        // Default constructor required for Firebase
     }
 
     public User(String lastName, String firstName, String middleName, String email, String passwordHash) {
@@ -19,7 +18,6 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    // Getters and setters
     public String getLastName() {
         return lastName;
     }
