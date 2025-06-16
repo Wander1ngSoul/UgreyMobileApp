@@ -51,7 +51,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Фамилия"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="20"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -68,7 +69,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Имя"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="20"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -85,7 +87,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Отчество (если есть)"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="20"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -103,7 +106,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Email"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="50"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -121,7 +125,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Пароль"
                     android:inputType="textPassword"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="30"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -139,7 +144,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Подтвердите пароль"
                     android:inputType="textPassword"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:maxLength="30"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button

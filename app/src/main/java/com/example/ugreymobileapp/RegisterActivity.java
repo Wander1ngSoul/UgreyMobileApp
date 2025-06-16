@@ -2,7 +2,9 @@ package com.example.ugreymobileapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
@@ -19,8 +21,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Pattern;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final int MAX_INPUT_LENGTH = 50;
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L}-]+$");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z]).{8,}$");
 
     private TextInputEditText etLastName, etFirstName, etMiddleName, etEmail, etPassword, etConfirmPassword;
     private DatabaseReference databaseReference;
@@ -40,7 +46,35 @@ public class RegisterActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
 
+        setupNameField(etLastName);
+        setupNameField(etFirstName);
+        setupNameField(etMiddleName);
+
         findViewById(R.id.btnRegister).setOnClickListener(v -> registerUser());
+    }
+
+    private void setupNameField(final TextInputEditText field) {
+        field.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().contains(" ")) {
+                    String filtered = s.toString().replaceAll(" ", "");
+                    field.setText(filtered);
+                    field.setSelection(filtered.length());
+                    field.setError("Пробелы не допускаются");
+                }
+
+                if (s.length() > MAX_INPUT_LENGTH) {
+                    field.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void registerUser() {
@@ -55,10 +89,37 @@ public class RegisterActivity extends AppCompatActivity {
             etLastName.setError("Введите фамилию");
             return;
         }
+        if (!NAME_PATTERN.matcher(lastName).matches()) {
+            etLastName.setError("Только буквы и дефисы, без пробелов");
+            return;
+        }
+        if (lastName.length() > MAX_INPUT_LENGTH) {
+            etLastName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+            return;
+        }
 
         if (TextUtils.isEmpty(firstName)) {
             etFirstName.setError("Введите имя");
             return;
+        }
+        if (!NAME_PATTERN.matcher(firstName).matches()) {
+            etFirstName.setError("Только буквы и дефисы, без пробелов");
+            return;
+        }
+        if (firstName.length() > MAX_INPUT_LENGTH) {
+            etFirstName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+            return;
+        }
+
+        if (!TextUtils.isEmpty(middleName)) {
+            if (!NAME_PATTERN.matcher(middleName).matches()) {
+                etMiddleName.setError("Только буквы и дефисы, без пробелов");
+                return;
+            }
+            if (middleName.length() > MAX_INPUT_LENGTH) {
+                etMiddleName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+                return;
+            }
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -66,11 +127,14 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (password.length() < 6) {
-            etPassword.setError("Пароль должен содержать минимум 6 символов");
+        if (password.length() < 8) {
+            etPassword.setError("Пароль должен содержать минимум 8 символов");
             return;
         }
-
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            etPassword.setError("Пароль должен содержать хотя бы 1 букву");
+            return;
+        }
         if (!password.equals(confirmPassword)) {
             etConfirmPassword.setError("Пароли не совпадают");
             return;

@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation("com.google.android.material:material:1.9.0")
+    implementation("androidx.annotation:annotation:1.3.0")
     implementation ("com.google.firebase:firebase-auth:22.3.1")
     implementation(libs.firebase.database)
     testImplementation(libs.junit)

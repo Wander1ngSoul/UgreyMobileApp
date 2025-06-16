@@ -3,26 +3,30 @@ package com.example.ugreymobileapp;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import java.util.regex.Pattern;
 
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
+    private static final int MAX_INPUT_LENGTH = 50;
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L}-]+$"); // Только буквы и дефисы
 
     private TextInputEditText etLastName, etFirstName, etMiddleName, etEmail;
     private Button btnEdit, btnSave, btnCancel, btnDelete;
@@ -32,8 +36,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Получаем email из SharedPreferences или Activity
-        currentUserEmail = getActivity().getIntent().getStringExtra("email");
+        currentUserEmail = requireActivity().getIntent().getStringExtra("email");
         if (currentUserEmail == null) {
             redirectToAuth();
             return;
@@ -48,14 +51,8 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         initViews(view);
+        setupValidation();
         return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        loadUserData();
-        setupButtonListeners();
     }
 
     private void initViews(View view) {
@@ -69,46 +66,67 @@ public class ProfileFragment extends Fragment {
         btnCancel = view.findViewById(R.id.btnCancel);
         btnDelete = view.findViewById(R.id.btnDelete);
 
-        // Начальное состояние кнопок
         btnSave.setVisibility(View.GONE);
         btnCancel.setVisibility(View.GONE);
     }
 
-    private void loadUserData() {
-        if (databaseReference == null) {
-            Log.e(TAG, "Database reference is null");
-            redirectToAuth();
-            return;
-        }
+    private void setupValidation() {
+        setupNameField(etLastName);
+        setupNameField(etFirstName);
+        setupNameField(etMiddleName);
 
+        etEmail.setEnabled(false);
+    }
+
+    private void setupNameField(TextInputEditText field) {
+        field.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().contains(" ")) {
+                    String filtered = s.toString().replaceAll(" ", "");
+                    field.setText(filtered);
+                    field.setSelection(filtered.length());
+                    field.setError("Пробелы не допускаются");
+                }
+
+                if (s.length() > MAX_INPUT_LENGTH) {
+                    field.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        loadUserData();
+        setupButtonListeners();
+    }
+
+    private void loadUserData() {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    Log.d(TAG, "No user data found in database");
-                    Toast.makeText(getContext(), "Данные пользователя не найдены", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                try {
+                if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
                         etLastName.setText(user.getLastName());
                         etFirstName.setText(user.getFirstName());
                         etMiddleName.setText(user.getMiddleName());
                         etEmail.setText(user.getEmail());
-                        Log.d(TAG, "User data loaded successfully");
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error parsing user data: " + e.getMessage());
-                    Toast.makeText(getContext(), "Ошибка загрузки данных", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Database error: " + error.getMessage());
-                Toast.makeText(getContext(), "Ошибка базы данных", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Ошибка загрузки данных", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -135,16 +153,44 @@ public class ProfileFragment extends Fragment {
         String firstName = etFirstName.getText().toString().trim();
         String middleName = etMiddleName.getText().toString().trim();
 
-        if (lastName.isEmpty()) {
+        if (TextUtils.isEmpty(lastName)) {
             etLastName.setError("Введите фамилию");
             return;
         }
-
-        if (firstName.isEmpty()) {
-            etFirstName.setError("Введите имя");
+        if (!NAME_PATTERN.matcher(lastName).matches()) {
+            etLastName.setError("Только буквы и дефисы");
+            return;
+        }
+        if (lastName.length() > MAX_INPUT_LENGTH) {
+            etLastName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
             return;
         }
 
+        if (TextUtils.isEmpty(firstName)) {
+            etFirstName.setError("Введите имя");
+            return;
+        }
+        if (!NAME_PATTERN.matcher(firstName).matches()) {
+            etFirstName.setError("Только буквы и дефисы");
+            return;
+        }
+        if (firstName.length() > MAX_INPUT_LENGTH) {
+            etFirstName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+            return;
+        }
+
+        if (!TextUtils.isEmpty(middleName)) {
+            if (!NAME_PATTERN.matcher(middleName).matches()) {
+                etMiddleName.setError("Только буквы и дефисы");
+                return;
+            }
+            if (middleName.length() > MAX_INPUT_LENGTH) {
+                etMiddleName.setError("Максимум " + MAX_INPUT_LENGTH + " символов");
+                return;
+            }
+        }
+
+        // Обновление данных
         databaseReference.child("lastName").setValue(lastName)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -157,17 +203,21 @@ public class ProfileFragment extends Fragment {
                                                         Toast.makeText(getContext(), "Данные обновлены", Toast.LENGTH_SHORT).show();
                                                         disableEditing();
                                                     } else {
-                                                        Toast.makeText(getContext(), "Ошибка при обновлении отчества", Toast.LENGTH_SHORT).show();
+                                                        showError("Ошибка при обновлении отчества");
                                                     }
                                                 });
                                     } else {
-                                        Toast.makeText(getContext(), "Ошибка при обновлении имени", Toast.LENGTH_SHORT).show();
+                                        showError("Ошибка при обновлении имени");
                                     }
                                 });
                     } else {
-                        Toast.makeText(getContext(), "Ошибка при обновлении фамилии", Toast.LENGTH_SHORT).show();
+                        showError("Ошибка при обновлении фамилии");
                     }
                 });
+    }
+
+    private void showError(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     private void cancelEditing() {
@@ -201,16 +251,13 @@ public class ProfileFragment extends Fragment {
                         Toast.makeText(getContext(), "Аккаунт удален", Toast.LENGTH_SHORT).show();
                         redirectToAuth();
                     } else {
-                        Toast.makeText(getContext(), "Ошибка удаления данных: " +
-                                task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Ошибка удаления данных", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void redirectToAuth() {
-        startActivity(new Intent(getContext(), AuthActivity.class));
-        if (getActivity() != null) {
-            getActivity().finish();
-        }
+        startActivity(new Intent(getActivity(), AuthActivity.class));
+        requireActivity().finish();
     }
 }
