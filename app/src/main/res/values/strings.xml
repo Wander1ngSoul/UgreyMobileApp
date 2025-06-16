@@ -20,4 +20,14 @@
     <string name="registration_success">Регистрация успешна!</string>
     <string name="registration_error">Ошибка регистрации</string>
     <string name="database_error">Ошибка базы данных</string>
+
+    <string name="profile_image">Фото профиля</string>
+    <string name="last_name">Фамилия</string>
+    <string name="first_name">Имя</string>
+    <string name="middle_name">Отчество</string>
+    <string name="email">Email</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="save_changes">Сохранить изменения</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete_account">Удалить аккаунт</string>
 </resources>

@@ -18,6 +18,7 @@
     <color name="text_color_dark">#1A1A1A</color>
     <color name="text_color_light">#FFFFFF</color>
     <color name="hint_color">#888888</color>
+    <color name="red">#F44336</color>
 
     <!-- Базовые цвета -->
     <color name="black">#FF000000</color>

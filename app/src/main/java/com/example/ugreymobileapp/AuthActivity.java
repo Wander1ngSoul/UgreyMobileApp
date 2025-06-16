@@ -71,8 +71,8 @@ public class AuthActivity extends AppCompatActivity {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         User user = userSnapshot.getValue(User.class);
                         if (user != null && user.getPasswordHash().equals(passwordHash)) {
-                            // Successful login
                             Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
+                            intent.putExtra("email", email);
                             startActivity(intent);
                             finish();
                             return;
