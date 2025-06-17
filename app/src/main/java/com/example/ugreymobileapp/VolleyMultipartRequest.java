@@ -19,7 +19,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
     private final Map<String, DataPart> mByteData;
     private final String BOUNDARY = "Volley-" + System.currentTimeMillis();
     private final String LINE_FEED = "\r\n";
-    private static final int TIMEOUT_MS = 20000; // 15 секунд таймаут
+    private static final int TIMEOUT_MS = 10000;
 
     public VolleyMultipartRequest(int method, String url,
                                   Response.Listener<NetworkResponse> listener,

@@ -23,8 +23,6 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -41,9 +39,9 @@ public class HomeFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final String BEARER_TOKEN = "Bearer 8DWQLfproEJlyC8dJaLqRhBx1B2sJyZR4V";
     private static final String BASE_URL = "http://80.93.179.130:9099/";
-    private static final int MAX_RETRIES = 40; // Увеличенное количество попыток
-    private static final long RETRY_DELAY_MS = 6000; // Увеличенная задержка
-    private static final int REQUEST_TIMEOUT_MS = 15000; // Таймаут запроса 10 секунд
+    private static final int MAX_RETRIES = 80;
+    private static final long RETRY_DELAY_MS = 5000;
+    private static final int REQUEST_TIMEOUT_MS = 10000;
 
     private String userEmail;
     private ImageView imagePreview;
