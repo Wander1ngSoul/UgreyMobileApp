@@ -1,24 +1,26 @@
 package com.example.ugreymobileapp;
 
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class Task {
     private String id;
     private String title;
     private String description;
-    private long dueDate; // timestamp
-    private int progress;
+    private long dueDate;
     private boolean completed;
     private String userId;
 
-    public Task() {}
+    public Task() {
+        // Пустой конструктор необходим для Firebase
+    }
 
     public Task(String title, String description, Date dueDate, String userId) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate.getTime();
         this.userId = userId;
-        this.progress = 0;
         this.completed = false;
     }
 
@@ -31,10 +33,14 @@ public class Task {
     public void setDescription(String description) { this.description = description; }
     public long getDueDate() { return dueDate; }
     public void setDueDate(long dueDate) { this.dueDate = dueDate; }
-    public int getProgress() { return progress; }
-    public void setProgress(int progress) { this.progress = progress; }
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        return title + " (" + sdf.format(new Date(dueDate)) + ")";
+    }
 }

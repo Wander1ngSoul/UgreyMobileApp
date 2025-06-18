@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
     private String userEmail;
     private ImageView imagePreview;
     private Button uploadButton;
+    private Button addTaskButton;
     private ProgressBar progressBar;
     private TextView resultText;
     private TextView statusText;
@@ -61,6 +62,10 @@ public class HomeFragment extends Fragment {
         if (getArguments() != null) {
             userEmail = getArguments().getString("email");
         }
+
+        if (userEmail == null && getActivity() != null) {
+            userEmail = getActivity().getIntent().getStringExtra("email");
+        }
         requestQueue = Volley.newRequestQueue(requireContext());
     }
 
@@ -74,6 +79,7 @@ public class HomeFragment extends Fragment {
             welcomeText.setText("Добро пожаловать, " + userEmail);
         }
 
+        addTaskButton = view.findViewById(R.id.add_task_button);
         imagePreview = view.findViewById(R.id.image_preview);
         uploadButton = view.findViewById(R.id.upload_button);
         progressBar = view.findViewById(R.id.progress_bar);
@@ -82,7 +88,16 @@ public class HomeFragment extends Fragment {
 
         uploadButton.setOnClickListener(v -> openImageChooser());
 
+        addTaskButton.setOnClickListener(v -> openReminders());
+
         return view;
+    }
+
+    private void redirectToAuth() {
+        startActivity(new Intent(getActivity(), AuthActivity.class));
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 
     private void openImageChooser() {
@@ -221,7 +236,6 @@ public class HomeFragment extends Fragment {
                                 showToast("Сервер сообщил об ошибке обработки");
                                 break;
                             case "In Process":
-                                // Увеличиваем задержку для статуса "In Process"
                                 retryCount++;
                                 handler.postDelayed(() -> checkTaskStatus(taskId), RETRY_DELAY_MS * 2);
                                 break;
@@ -334,7 +348,6 @@ public class HomeFragment extends Fragment {
                         statusText.setVisibility(View.GONE);
                         showToast(finalErrorDetails);
 
-                        // Повторная попытка получить результат, если задача завершена
                         if (currentTaskId != null && retryCount < MAX_RETRIES / 2) {
                             retryCount++;
                             handler.postDelayed(() -> getTaskResult(currentTaskId), RETRY_DELAY_MS);
@@ -357,7 +370,7 @@ public class HomeFragment extends Fragment {
         };
 
         resultRequest.setRetryPolicy(new DefaultRetryPolicy(
-                REQUEST_TIMEOUT_MS * 2, // Удвоенный таймаут для результата
+                REQUEST_TIMEOUT_MS * 2,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -380,6 +393,16 @@ public class HomeFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e("UI_ERROR", "Toast error", e);
+        }
+    }
+
+    private void openReminders() {
+        if (userEmail != null) {
+            Intent intent = new Intent(requireActivity(), RemindersActivity.class);
+            intent.putExtra("email", userEmail);
+            startActivity(intent);
+        } else {
+            Toast.makeText(getContext(), "Ошибка: email не найден", Toast.LENGTH_SHORT).show();
         }
     }
 

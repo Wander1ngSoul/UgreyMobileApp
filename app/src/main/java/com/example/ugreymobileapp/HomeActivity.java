@@ -41,7 +41,14 @@ public class HomeActivity extends AppCompatActivity {
 
                     int id = item.getItemId();
                     if (id == R.id.nav_home) {
-                        selectedFragment = new HomeFragment();
+                        HomeFragment homeFragment = new HomeFragment();
+                        Bundle args = new Bundle();
+                        args.putString("email", userEmail);
+                        homeFragment.setArguments(args);
+
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, homeFragment)
+                                .commit();
                     } else if (id == R.id.nav_profile) {
                         ProfileFragment profileFragment = new ProfileFragment();
                         Bundle args = new Bundle();
