@@ -7,4 +7,5 @@
         android:endColor="@color/gradient_end"
         android:type="linear" />
     <corners android:radius="0dp" />
+
 </shape>

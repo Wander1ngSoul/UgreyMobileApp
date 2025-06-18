@@ -45,6 +45,17 @@ public class RemindersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminders);
 
+        // Инициализация элементов интерфейса
+        etTitle = findViewById(R.id.etTitle);
+        etDescription = findViewById(R.id.etDescription);
+        etDueDate = findViewById(R.id.etDueDate);
+        btnAdd = findViewById(R.id.btnAdd);
+        btnUpdate = findViewById(R.id.btnUpdate);
+        btnDelete = findViewById(R.id.btnDelete);
+        btnDatePicker = findViewById(R.id.btnDatePicker);
+        listView = findViewById(R.id.listView);
+
+        // Получение email пользователя и инициализация Firebase
         String userEmail = getIntent().getStringExtra("email");
         if (userEmail == null) {
             Toast.makeText(this, "Ошибка: email не найден", Toast.LENGTH_SHORT).show();
@@ -56,46 +67,34 @@ public class RemindersActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("reminders").child(currentUserId);
 
-        etTitle = findViewById(R.id.etTitle);
-        etDescription = findViewById(R.id.etDescription);
-        etDueDate = findViewById(R.id.etDueDate);
-        btnAdd = findViewById(R.id.btnAdd);
-        btnUpdate = findViewById(R.id.btnUpdate);
-        btnDelete = findViewById(R.id.btnDelete);
-        btnDatePicker = findViewById(R.id.btnDatePicker);
-        listView = findViewById(R.id.listView);
-
+        // Настройка списка задач
         taskList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, taskList);
         listView.setAdapter(adapter);
 
-        btnUpdate.setEnabled(false);
-        btnDelete.setEnabled(false);
-
+        // Установка обработчиков событий
+        btnDatePicker.setOnClickListener(v -> showDatePicker());
         btnAdd.setOnClickListener(v -> addTask());
         btnUpdate.setOnClickListener(v -> updateTask());
         btnDelete.setOnClickListener(v -> deleteTask());
-        btnDatePicker.setOnClickListener(v -> showDatePicker());
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedTask = taskList.get(position);
-                etTitle.setText(selectedTask.getTitle());
-                etDescription.setText(selectedTask.getDescription());
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            selectedTask = taskList.get(position);
+            etTitle.setText(selectedTask.getTitle());
+            etDescription.setText(selectedTask.getDescription());
 
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                etDueDate.setText(sdf.format(new Date(selectedTask.getDueDate())));
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+            etDueDate.setText(sdf.format(new Date(selectedTask.getDueDate())));
 
-                btnAdd.setEnabled(false);
-                btnUpdate.setEnabled(true);
-                btnDelete.setEnabled(true);
-            }
+            btnAdd.setEnabled(false);
+            btnUpdate.setEnabled(true);
+            btnDelete.setEnabled(true);
         });
 
-        // Проверяем наличие предзаполненных данных
+        // Проверка предзаполненных данных
         checkPrefilledData();
 
+        // Загрузка задач из Firebase
         loadTasks();
     }
 
@@ -104,15 +103,10 @@ public class RemindersActivity extends AppCompatActivity {
         String prefilledDescription = getIntent().getStringExtra("prefilled_description");
         String prefilledDueDate = getIntent().getStringExtra("prefilled_due_date");
 
-        if (prefilledTitle != null) {
-            etTitle.setText(prefilledTitle);
-        }
-        if (prefilledDescription != null) {
-            etDescription.setText(prefilledDescription);
-        }
+        if (prefilledTitle != null) etTitle.setText(prefilledTitle);
+        if (prefilledDescription != null) etDescription.setText(prefilledDescription);
         if (prefilledDueDate != null) {
             etDueDate.setText(prefilledDueDate);
-
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
                 Date date = sdf.parse(prefilledDueDate);
@@ -124,24 +118,23 @@ public class RemindersActivity extends AppCompatActivity {
     }
 
     private void showDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
+        new DatePickerDialog(
                 this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, month);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                        etDueDate.setText(sdf.format(calendar.getTime()));
-                    }
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDueDateField();
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-        );
-        datePickerDialog.show();
+        ).show();
+    }
+
+    private void updateDueDateField() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        etDueDate.setText(sdf.format(calendar.getTime()));
     }
 
     private void addTask() {
@@ -176,9 +169,9 @@ public class RemindersActivity extends AppCompatActivity {
                     .addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {
                             clearFields();
-                            Toast.makeText(RemindersActivity.this, "Напоминание добавлено", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Напоминание добавлено", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(RemindersActivity.this, "Ошибка добавления", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Ошибка добавления", Toast.LENGTH_SHORT).show();
                         }
                     });
         } catch (Exception e) {
@@ -220,9 +213,9 @@ public class RemindersActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             clearFields();
-                            Toast.makeText(RemindersActivity.this, "Напоминание обновлено", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Напоминание обновлено", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(RemindersActivity.this, "Ошибка обновления", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Ошибка обновления", Toast.LENGTH_SHORT).show();
                         }
                     });
         } catch (Exception e) {
@@ -237,9 +230,9 @@ public class RemindersActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         clearFields();
-                        Toast.makeText(RemindersActivity.this, "Напоминание удалено", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Напоминание удалено", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(RemindersActivity.this, "Ошибка удаления", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Ошибка удаления", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -261,7 +254,7 @@ public class RemindersActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(RemindersActivity.this, "Ошибка загрузки напоминаний", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RemindersActivity.this, "Ошибка загрузки: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
