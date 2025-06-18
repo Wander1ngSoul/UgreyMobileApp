@@ -1,5 +1,7 @@
 package com.example.ugreymobileapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -32,7 +34,11 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class HomeFragment extends Fragment {
@@ -55,6 +61,8 @@ public class HomeFragment extends Fragment {
     private int retryCount = 0;
     private Handler handler = new Handler();
     private String currentTaskId;
+    private String lastMeterReading;
+    private String lastSerialNumber;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,7 +95,6 @@ public class HomeFragment extends Fragment {
         statusText = view.findViewById(R.id.status_text);
 
         uploadButton.setOnClickListener(v -> openImageChooser());
-
         addTaskButton.setOnClickListener(v -> openReminders());
 
         return view;
@@ -303,6 +310,9 @@ public class HomeFragment extends Fragment {
                             throw new JSONException("Неполные данные в результате");
                         }
 
+                        lastMeterReading = meterReading;
+                        lastSerialNumber = serialNumber;
+
                         String resultString = String.format(
                                 "Показания счетчика: %s\nСерийный номер: %s",
                                 meterReading,
@@ -314,6 +324,8 @@ public class HomeFragment extends Fragment {
                             resultText.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.GONE);
                             statusText.setVisibility(View.GONE);
+
+                            showReminderDialog();
                         });
 
                     } catch (JSONException e) {
@@ -375,6 +387,52 @@ public class HomeFragment extends Fragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(resultRequest);
+    }
+
+    private void showReminderDialog() {
+        if (lastMeterReading == null || lastSerialNumber == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Создать напоминание?");
+        builder.setMessage("Хотите создать напоминание для этих показаний счетчика?");
+
+        builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                createReminderAutomatically();
+            }
+        });
+
+        builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void createReminderAutomatically() {
+        if (lastMeterReading == null || lastSerialNumber == null || userEmail == null) return;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 7);
+        Date dueDate = calendar.getTime();
+
+        String title = "Показания счетчика " + lastSerialNumber;
+        String description = "Текущие показания: " + lastMeterReading;
+
+        // Создаем Intent для открытия RemindersActivity с предзаполненными данными
+        Intent intent = new Intent(requireActivity(), RemindersActivity.class);
+        intent.putExtra("email", userEmail);
+        intent.putExtra("prefilled_title", title);
+        intent.putExtra("prefilled_description", description);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        intent.putExtra("prefilled_due_date", sdf.format(dueDate));
+
+        startActivity(intent);
     }
 
     private void handleAuthError() {

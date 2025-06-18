@@ -93,7 +93,34 @@ public class RemindersActivity extends AppCompatActivity {
             }
         });
 
+        // Проверяем наличие предзаполненных данных
+        checkPrefilledData();
+
         loadTasks();
+    }
+
+    private void checkPrefilledData() {
+        String prefilledTitle = getIntent().getStringExtra("prefilled_title");
+        String prefilledDescription = getIntent().getStringExtra("prefilled_description");
+        String prefilledDueDate = getIntent().getStringExtra("prefilled_due_date");
+
+        if (prefilledTitle != null) {
+            etTitle.setText(prefilledTitle);
+        }
+        if (prefilledDescription != null) {
+            etDescription.setText(prefilledDescription);
+        }
+        if (prefilledDueDate != null) {
+            etDueDate.setText(prefilledDueDate);
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+                Date date = sdf.parse(prefilledDueDate);
+                calendar.setTime(date);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void showDatePicker() {
