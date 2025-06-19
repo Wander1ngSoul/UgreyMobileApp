@@ -55,7 +55,6 @@ public class RemindersActivity extends AppCompatActivity {
         btnDatePicker = findViewById(R.id.btnDatePicker);
         listView = findViewById(R.id.listView);
 
-        // Получение email пользователя и инициализация Firebase
         String userEmail = getIntent().getStringExtra("email");
         if (userEmail == null) {
             Toast.makeText(this, "Ошибка: email не найден", Toast.LENGTH_SHORT).show();
@@ -67,12 +66,10 @@ public class RemindersActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("reminders").child(currentUserId);
 
-        // Настройка списка задач
         taskList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, taskList);
         listView.setAdapter(adapter);
 
-        // Установка обработчиков событий
         btnDatePicker.setOnClickListener(v -> showDatePicker());
         btnAdd.setOnClickListener(v -> addTask());
         btnUpdate.setOnClickListener(v -> updateTask());
@@ -91,10 +88,8 @@ public class RemindersActivity extends AppCompatActivity {
             btnDelete.setEnabled(true);
         });
 
-        // Проверка предзаполненных данных
         checkPrefilledData();
 
-        // Загрузка задач из Firebase
         loadTasks();
     }
 

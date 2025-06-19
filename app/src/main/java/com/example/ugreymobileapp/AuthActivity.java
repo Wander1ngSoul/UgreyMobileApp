@@ -73,6 +73,7 @@ public class AuthActivity extends AppCompatActivity {
                         if (user != null && user.getPasswordHash().equals(passwordHash)) {
                             Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
                             intent.putExtra("email", email);
+                            intent.putExtra("firstName", user.getFirstName());
                             startActivity(intent);
                             finish();
                             return;

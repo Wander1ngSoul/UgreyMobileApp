@@ -11,6 +11,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
     private String userEmail;
+    private String userName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,17 +20,26 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         userEmail = getIntent().getStringExtra("email");
+        userName = getIntent().getStringExtra("firstName");
         if (userEmail == null) {
             startActivity(new Intent(this, AuthActivity.class));
             finish();
             return;
         }
 
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
+
         if (savedInstanceState == null) {
+            HomeFragment homeFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putString("email", userEmail);
+            args.putString("userName", userName);
+            homeFragment.setArguments(args);
+
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
+                    .replace(R.id.fragment_container, homeFragment)
                     .commit();
         }
     }

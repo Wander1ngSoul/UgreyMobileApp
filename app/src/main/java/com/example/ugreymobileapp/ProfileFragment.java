@@ -32,6 +32,7 @@ public class ProfileFragment extends Fragment {
     private Button btnEdit, btnSave, btnCancel, btnDelete;
     private DatabaseReference databaseReference;
     private String currentUserEmail;
+    private String currentUserName;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +42,8 @@ public class ProfileFragment extends Fragment {
             redirectToAuth();
             return;
         }
+
+        currentUserName = requireActivity().getIntent().getStringExtra("name");
 
         String userId = currentUserEmail.replace(".", ",");
         databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId);

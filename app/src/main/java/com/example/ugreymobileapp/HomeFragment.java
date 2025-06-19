@@ -82,9 +82,20 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        TextView welcomeText = view.findViewById(R.id.welcome_text);
-        if (welcomeText != null && userEmail != null) {
-            welcomeText.setText("Добро пожаловать, " + userEmail);
+
+
+        if (getArguments() != null) {
+            userEmail = getArguments().getString("email");
+            String userName = getArguments().getString("userName");
+
+            TextView welcomeText = view.findViewById(R.id.welcome_text);
+            if (welcomeText != null) {
+                if (userName != null && !userName.isEmpty()) {
+                    welcomeText.setText("Добро пожаловать, " + userName + "!");
+                } else {
+                    welcomeText.setText("Добро пожаловать!");
+                }
+            }
         }
 
         addTaskButton = view.findViewById(R.id.add_task_button);
