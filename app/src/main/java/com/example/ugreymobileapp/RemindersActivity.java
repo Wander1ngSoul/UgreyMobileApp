@@ -3,7 +3,6 @@ package com.example.ugreymobileapp;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -45,7 +44,7 @@ public class RemindersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminders);
 
-        // Инициализация элементов интерфейса
+        // Инициализация UI элементов
         etTitle = findViewById(R.id.etTitle);
         etDescription = findViewById(R.id.etDescription);
         etDueDate = findViewById(R.id.etDueDate);
@@ -55,6 +54,7 @@ public class RemindersActivity extends AppCompatActivity {
         btnDatePicker = findViewById(R.id.btnDatePicker);
         listView = findViewById(R.id.listView);
 
+        // Получение email пользователя
         String userEmail = getIntent().getStringExtra("email");
         if (userEmail == null) {
             Toast.makeText(this, "Ошибка: email не найден", Toast.LENGTH_SHORT).show();
@@ -63,13 +63,16 @@ public class RemindersActivity extends AppCompatActivity {
         }
         currentUserId = userEmail.replace(".", ",");
 
+        // Инициализация Firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("reminders").child(currentUserId);
 
+        // Настройка списка задач
         taskList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, taskList);
         listView.setAdapter(adapter);
 
+        // Установка обработчиков событий
         btnDatePicker.setOnClickListener(v -> showDatePicker());
         btnAdd.setOnClickListener(v -> addTask());
         btnUpdate.setOnClickListener(v -> updateTask());
@@ -89,7 +92,6 @@ public class RemindersActivity extends AppCompatActivity {
         });
 
         checkPrefilledData();
-
         loadTasks();
     }
 
@@ -98,7 +100,10 @@ public class RemindersActivity extends AppCompatActivity {
         String prefilledDescription = getIntent().getStringExtra("prefilled_description");
         String prefilledDueDate = getIntent().getStringExtra("prefilled_due_date");
 
-        if (prefilledTitle != null) etTitle.setText(prefilledTitle);
+        if (prefilledTitle != null) {
+            String cleanTitle = extractSerialNumber(prefilledTitle);
+            etTitle.setText(formatSerialNumber(cleanTitle));
+        }
         if (prefilledDescription != null) etDescription.setText(prefilledDescription);
         if (prefilledDueDate != null) {
             etDueDate.setText(prefilledDueDate);
@@ -110,6 +115,18 @@ public class RemindersActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private String extractSerialNumber(String input) {
+        // Удаляем все, кроме цифр
+        return input.replaceAll("[^0-9]", "");
+    }
+
+    private String formatSerialNumber(String serialNumber) {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            return "Серийный номер счетчика: ";
+        }
+        return "Серийный номер счетчика: " + serialNumber;
     }
 
     private void showDatePicker() {
@@ -137,8 +154,12 @@ public class RemindersActivity extends AppCompatActivity {
         String description = etDescription.getText().toString().trim();
         String dueDateStr = etDueDate.getText().toString().trim();
 
-        if (title.isEmpty()) {
-            etTitle.setError("Введите название");
+        // Извлекаем только цифры из серийного номера
+        String serialNumber = extractSerialNumber(title);
+        title = formatSerialNumber(serialNumber);
+
+        if (serialNumber.isEmpty()) {
+            etTitle.setError("Введите серийный номер");
             return;
         }
 
@@ -181,8 +202,12 @@ public class RemindersActivity extends AppCompatActivity {
         String description = etDescription.getText().toString().trim();
         String dueDateStr = etDueDate.getText().toString().trim();
 
-        if (title.isEmpty()) {
-            etTitle.setError("Введите название");
+        // Извлекаем только цифры из серийного номера
+        String serialNumber = extractSerialNumber(title);
+        title = formatSerialNumber(serialNumber);
+
+        if (serialNumber.isEmpty()) {
+            etTitle.setError("Введите серийный номер");
             return;
         }
 

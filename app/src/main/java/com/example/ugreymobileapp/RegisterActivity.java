@@ -76,6 +76,14 @@ public class RegisterActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
     }
+    public boolean isEmailValid(String email) {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public boolean isPasswordValid(String password) {
+        return PASSWORD_PATTERN.matcher(password).matches() &&
+                password.length() >= 8;
+    }
 
     private void registerUser() {
         String lastName = etLastName.getText().toString().trim();

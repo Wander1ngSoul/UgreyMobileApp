@@ -25,9 +25,9 @@
                 android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
-                android:src="@drawable/ic_logo"
                 android:contentDescription="@string/app_name"
-                android:tint="@color/white"/>
+                android:src="@drawable/ic_logo"
+                android:tint="@color/white" />
 
             <!-- Заголовок -->
             <TextView
